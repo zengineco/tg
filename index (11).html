@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0d0508">
+<title>TELEGAMING SUITE — The Exchange Floor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@300;400;600;700&display=swap');
+
+/* ============================================================
+   TELEGAMING SUITE  |  zengine.site
+   Pure spectator broadcast. No interaction. Universal time-sync.
+   Aesthetic: molten gold neon / deep crimson / amber sparks
+   Matching the TG logo: dark maroon darkness, glowing gold rims
+============================================================ */
+
+:root{
+  /* From the logo image: deep crimson dark, molten amber/gold neon,
+     rich purple-maroon bg, scattered amber bokeh */
+  --void:      #07030a;
+  --bg:        #0d0508;
+  --bg2:       #130a0d;
+  --bg3:       #1a0e12;
+  --bg4:       #221318;
+  --crimson:   #8b0e18;
+  --gold:      #f5a623;
+  --gold2:     #ffd060;
+  --goldglow:  rgba(245,166,35,0.18);
+  --goldbd:    rgba(245,166,35,0.32);
+  --amber:     #ff8c00;
+  --amberbg:   rgba(255,140,0,0.12);
+  --red:       #e03030;
+  --redbg:     rgba(224,48,48,0.12);
+  --green:     #22c87a;
+  --greenbg:   rgba(34,200,122,0.10);
+  --purple:    #9040c0;
+  --t1:        #f5ede8;
+  --t2:        rgba(245,237,232,0.68);
+  --t3:        rgba(245,237,232,0.38);
+  --t4:        rgba(245,237,232,0.18);
+  --t5:        rgba(245,237,232,0.08);
+  --ff-title:  'Bebas Neue', Impact, sans-serif;
+  --ff-body:   'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --ff-mono:   'DM Mono', Consolas, monospace;
+  --shadow:    0 8px 40px rgba(0,0,0,0.7);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{
+  background:var(--bg);
+  color:var(--t1);
+  font-family:var(--ff-body);
+  font-size:15px;
+  line-height:1.4;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* scanline TV effect */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(
+    0deg,transparent,transparent 2px,
+    rgba(0,0,0,0.035) 2px,rgba(0,0,0,0.035) 4px
+  );
+  pointer-events:none;z-index:9999;
+}
+
+/* ambient glow from bottom-center, like a stage floor */
+body::after{
+  content:'';
+  position:fixed;
+  bottom:-100px;left:50%;
+  transform:translateX(-50%);
+  width:120%;height:400px;
+  background:radial-gradient(ellipse at 50% 100%,
+    rgba(200,80,0,0.12) 0%,
+    rgba(140,30,10,0.06) 40%,
+    transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── GOLD TICKER BAR ── */
+#ticker-bar{
+  position:fixed;top:0;left:0;right:0;
+  height:32px;
+  background:linear-gradient(90deg,#c07010,#f5a623,#ffd060,#f5a623,#c07010);
+  background-size:200% 100%;
+  animation:goldshift 6s linear infinite;
+  z-index:900;
+  overflow:hidden;
+  display:flex;align-items:center;
+  box-shadow:0 2px 20px rgba(245,166,35,0.5);
+}
+@keyframes goldshift{0%{background-position:0}100%{background-position:200% 0}}
+#ticker-inner{
+  display:flex;gap:0;
+  white-space:nowrap;
+  animation:tickscroll 32s linear infinite;
+  font-family:var(--ff-mono);
+  font-size:11px;font-weight:500;
+  color:#1a0800;
+  align-items:center;height:100%;
+  will-change:transform;
+}
+@keyframes tickscroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+.ti{display:inline-flex;align-items:center;gap:0;padding:0 6px}
+.ti-sep{
+  display:inline-block;
+  width:20px;text-align:center;
+  opacity:0.45;font-size:14px;
+}
+
+/* ── NAV BAR ── */
+#nav{
+  position:fixed;top:32px;left:0;right:0;
+  height:58px;
+  background:rgba(13,5,8,0.95);
+  border-bottom:1px solid rgba(245,166,35,0.15);
+  backdrop-filter:blur(20px);
+  z-index:800;
+  display:flex;align-items:center;
+  padding:0 20px;gap:8px;
+}
+.nav-logo{
+  font-family:var(--ff-title);
+  font-size:26px;
+  color:var(--gold);
+  letter-spacing:3px;
+  line-height:1;
+  cursor:pointer;
+  text-shadow:0 0 20px rgba(245,166,35,0.5);
+  flex-shrink:0;
+  text-decoration:none;
+}
+.nav-logo sub{
+  font-family:var(--ff-mono);
+  font-size:6px;
+  letter-spacing:2px;
+  color:var(--t4);
+  display:block;
+  margin-top:-2px;
+  font-style:normal;
+  vertical-align:baseline;
+}
+.nav-divider{
+  width:1px;height:24px;
+  background:rgba(245,166,35,0.15);
+  flex-shrink:0;margin:0 4px;
+}
+.nav-rooms{
+  display:flex;align-items:center;gap:2px;
+  overflow-x:auto;flex:1;
+  scrollbar-width:none;
+}
+.nav-rooms::-webkit-scrollbar{display:none}
+.nb{
+  font-family:var(--ff-mono);
+  font-size:9px;letter-spacing:1.5px;
+  padding:5px 10px;
+  border-radius:4px;
+  border:1px solid transparent;
+  background:none;color:var(--t4);
+  cursor:pointer;transition:all 0.12s;
+  white-space:nowrap;text-transform:uppercase;
+}
+.nb:hover{color:var(--t2);border-color:rgba(245,166,35,0.15)}
+.nb.on{
+  color:var(--gold);
+  border-color:var(--goldbd);
+  background:var(--goldglow);
+  text-shadow:0 0 8px rgba(245,166,35,0.4);
+}
+.nav-live{
+  margin-left:auto;flex-shrink:0;
+  font-family:var(--ff-mono);
+  font-size:9px;letter-spacing:2px;
+  color:var(--green);text-transform:uppercase;
+  display:flex;align-items:center;gap:5px;
+}
+.nav-live::before{
+  content:'';width:6px;height:6px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:pulse 1.5s ease-in-out infinite;
+}
+
+/* ── MAIN ── */
+#main{padding-top:90px;position:relative;z-index:1;min-height:100vh}
+
+/* ── VIEWS ── */
+.view{display:none}
+.view.on{display:block}
+
+/* ============================================================
+   LOTTO LOBBY — Landing Page
+============================================================ */
+#v-lobby{padding:0 0 60px}
+
+.lobby-hero{
+  text-align:center;
+  padding:36px 20px 32px;
+  background:linear-gradient(180deg,
+    rgba(120,20,0,0.22) 0%,
+    rgba(80,10,0,0.10) 60%,
+    transparent 100%);
+  border-bottom:1px solid rgba(245,166,35,0.08);
+  position:relative;overflow:hidden;
+  min-height:300px;
+  display:flex;align-items:center;justify-content:center;
+}
+.hero-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 100% at 50% 0%,
+    rgba(245,100,0,0.14) 0%,
+    rgba(150,30,0,0.06) 50%,
+    transparent 80%);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  font-family:var(--ff-mono);
+  font-size:9px;letter-spacing:5px;
+  color:var(--gold);text-transform:uppercase;
+  margin-bottom:14px;opacity:0.75;
+}
+
+/* TG LOGO — matches the attached image */
+.hero-tg-logo{
+  display:flex;justify-content:center;align-items:center;
+  margin:10px 0 14px;
+}
+.tg-ring{
+  width:clamp(150px,26vw,230px);
+  height:clamp(150px,26vw,230px);
+  border-radius:50%;
+  background:radial-gradient(circle at 45% 40%,
+    #3c0c00 0%,
+    #200500 45%,
+    #0e0208 100%);
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:
+    0 0 0 4px rgba(255,130,0,0.65),
+    0 0 0 8px rgba(200,70,0,0.28),
+    0 0 0 16px rgba(150,40,0,0.10),
+    0 0 50px rgba(255,100,0,0.45),
+    0 0 90px rgba(255,60,0,0.22),
+    inset 0 0 50px rgba(180,30,0,0.5);
+  animation:ringglow 2.8s ease-in-out infinite;
+}
+/* Roulette-style tick marks ring */
+.tg-ring::before{
+  content:'';
+  position:absolute;
+  inset:-12px;
+  border-radius:50%;
+  background:repeating-conic-gradient(
+    rgba(245,140,20,0.18) 0deg 4deg,
+    rgba(20,4,0,0.5) 4deg 9.7deg
+  );
+  z-index:0;
+  animation:ringspin 25s linear infinite;
+}
+.tg-ring::after{
+  content:'';
+  position:absolute;
+  inset:8px;
+  border-radius:50%;
+  border:1.5px solid rgba(255,120,0,0.25);
+  pointer-events:none;
+  z-index:1;
+}
+@keyframes ringglow{
+  0%,100%{
+    box-shadow:0 0 0 4px rgba(255,130,0,0.65),0 0 0 8px rgba(200,70,0,0.28),0 0 0 16px rgba(150,40,0,0.10),0 0 50px rgba(255,100,0,0.45),0 0 90px rgba(255,60,0,0.22),inset 0 0 50px rgba(180,30,0,0.5);
+  }
+  50%{
+    box-shadow:0 0 0 5px rgba(255,160,20,0.85),0 0 0 10px rgba(220,90,0,0.4),0 0 0 20px rgba(180,50,0,0.15),0 0 70px rgba(255,120,0,0.65),0 0 120px rgba(255,70,0,0.32),inset 0 0 70px rgba(200,50,0,0.6);
+  }
+}
+@keyframes ringspin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+.tg-letters{
+  font-family:'Bebas Neue', Impact, sans-serif;
+  font-size:clamp(64px,11vw,105px);
+  line-height:0.88;
+  letter-spacing:4px;
+  color:transparent;
+  background:linear-gradient(175deg,
+    #ffda40 0%,
+    #ff9000 25%,
+    #e54800 55%,
+    #c42000 85%,
+    #8a1000 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  filter:
+    drop-shadow(0 0 16px rgba(255,130,0,0.9))
+    drop-shadow(0 0 36px rgba(255,80,0,0.6))
+    drop-shadow(0 0 2px rgba(255,220,100,0.8));
+  position:relative;z-index:2;
+  animation:letglow 2.8s ease-in-out infinite;
+}
+@keyframes letglow{
+  0%,100%{
+    filter:drop-shadow(0 0 16px rgba(255,130,0,0.9)) drop-shadow(0 0 36px rgba(255,80,0,0.6)) drop-shadow(0 0 2px rgba(255,220,100,0.8));
+  }
+  50%{
+    filter:drop-shadow(0 0 24px rgba(255,170,0,1)) drop-shadow(0 0 52px rgba(255,100,0,0.8)) drop-shadow(0 0 3px rgba(255,240,120,1));
+  }
+}
+
+.hero-sub{
+  font-family:var(--ff-body);
+  font-size:13px;font-weight:300;
+  letter-spacing:6px;color:var(--t4);
+  text-transform:uppercase;margin-bottom:0;
+}
+.hero-title{
+  font-family:var(--ff-title);
+  font-size:clamp(52px,9vw,100px);
+  line-height:0.88;
+  letter-spacing:8px;
+  color:var(--t1);
+  margin-bottom:6px;
+}
+.hero-title .tg{
+  color:var(--gold);
+  text-shadow:0 0 40px rgba(245,130,0,0.6),0 0 80px rgba(245,100,0,0.3);
+}
+
+/* LOTTO CARDS */
+.lotto-wrap{
+  max-width:920px;margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;padding:0 20px;
+}
+@media(max-width:700px){.lotto-wrap{grid-template-columns:1fr}}
+.lotto-card{
+  background:var(--bg2);
+  border:1px solid rgba(245,166,35,0.12);
+  border-radius:16px;padding:22px 18px;
+  position:relative;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.lotto-card::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 100% 60% at 50% 0%,
+    rgba(245,130,0,0.05) 0%,transparent 70%);
+  pointer-events:none;
+}
+.lotto-card:hover{border-color:rgba(245,166,35,0.25)}
+.lotto-game{
+  font-family:var(--ff-title);
+  font-size:22px;letter-spacing:3px;
+  color:var(--t1);margin-bottom:1px;
+}
+.lotto-desc{
+  font-family:var(--ff-mono);
+  font-size:8px;letter-spacing:2px;
+  color:var(--t5);text-transform:uppercase;margin-bottom:16px;
+}
+.lotto-balls{
+  display:flex;gap:6px;flex-wrap:wrap;
+  min-height:48px;align-items:center;
+  margin-bottom:14px;
+}
+.lball{
+  width:42px;height:42px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-mono);font-size:13px;font-weight:500;
+  flex-shrink:0;
+  transition:transform 0.3s,opacity 0.3s;
+}
+.lball.popping{animation:ballpop 0.45s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes ballpop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.lb-white{
+  background:radial-gradient(circle at 35% 30%,#3a3860,#1e1c48);
+  border:1px solid rgba(140,130,220,0.35);
+  color:#9090e0;
+}
+.lb-power{
+  background:radial-gradient(circle at 35% 30%,#5a1a08,#380e04);
+  border:1px solid rgba(255,120,40,0.45);
+  color:#ff8030;
+}
+.lb-sep{
+  width:10px;height:3px;
+  background:rgba(245,166,35,0.15);
+  border-radius:2px;align-self:center;flex-shrink:0;
+}
+.lotto-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--ff-mono);font-size:9px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  padding-top:10px;
+}
+.lotto-cd{color:var(--t4)}
+.cd-num{color:var(--gold);font-size:16px;font-weight:500}
+
+/* BROWSE SECTION */
+.browse-wrap{
+  max-width:1100px;margin:36px auto 0;padding:0 20px;
+}
+.section-head{
+  font-family:var(--ff-mono);
+  font-size:8px;letter-spacing:4px;
+  color:var(--t4);text-transform:uppercase;
+  margin-bottom:18px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-head::after{content:'';flex:1;height:1px;background:rgba(245,166,35,0.08)}
+
+.rooms-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:12px;
+}
+.rp{ /* room portal */
+  background:var(--bg2);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;
+  padding:20px 18px;
+  cursor:pointer;
+  transition:all 0.18s;
+  position:relative;overflow:hidden;
+}
+.rp::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,
+    rgba(255,255,255,0.025) 0%,transparent 50%);
+  pointer-events:none;
+}
+.rp:hover{
+  background:var(--bg3);
+  border-color:var(--goldbd);
+  transform:translateY(-3px);
+  box-shadow:0 16px 48px rgba(0,0,0,0.6),
+             0 0 20px rgba(245,130,0,0.06);
+}
+.rp-icon{font-size:26px;margin-bottom:10px;display:block}
+.rp-name{
+  font-family:var(--ff-title);
+  font-size:20px;letter-spacing:3px;
+  color:var(--t1);margin-bottom:4px;
+}
+.rp-desc{
+  font-size:12px;font-weight:300;
+  color:var(--t3);line-height:1.4;margin-bottom:14px;
+}
+.rp-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,0.05);
+  padding-top:10px;
+  font-family:var(--ff-mono);font-size:9px;
+}
+.rp-live{
+  color:var(--green);display:flex;align-items:center;gap:5px;
+}
+.rp-live::before{
+  content:'';width:5px;height:5px;
+  border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px var(--green);
+}
+.rp-arrow{color:var(--t4);font-size:13px;transition:all 0.15s}
+.rp:hover .rp-arrow{color:var(--gold);transform:translateX(4px)}
+
+/* SALOON SPECIAL CARD */
+.rp.saloon{
+  border-color:rgba(245,166,35,0.22);
+  background:linear-gradient(135deg,var(--bg2) 0%,rgba(245,130,0,0.04) 100%);
+}
+.rp.saloon:hover{border-color:var(--gold)}
+.saloon-banner{
+  font-family:var(--ff-mono);font-size:7px;
+  letter-spacing:3px;color:var(--gold);
+  text-transform:uppercase;margin-bottom:6px;
+  opacity:0.8;
+}
+.saloon-url{
+  font-family:var(--ff-mono);font-size:9px;
+  color:var(--t4);text-decoration:none;
+  display:block;
+}
+.saloon-url:hover{color:var(--gold)}
+
+/* footer */
+.lobby-footer{
+  text-align:center;
+  margin-top:44px;
+  font-family:var(--ff-mono);
+  font-size:9px;letter-spacing:2px;
+  color:var(--t5);padding:0 20px;
+}
+.lobby-footer a{color:var(--gold);text-decoration:none;opacity:0.7}
+.lobby-footer a:hover{opacity:1}
+
+/* ============================================================
+   GAME ROOM SHELL (shared by all 6 game rooms)
+============================================================ */
+.groom{
+  max-width:860px;margin:0 auto;
+  padding:28px 20px 60px;
+}
+.groom-head{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:24px;flex-wrap:wrap;gap:10px;
+}
+.groom-title-block{}
+.groom-title{
+  font-family:var(--ff-title);
+  font-size:clamp(34px,6vw,56px);
+  letter-spacing:4px;color:var(--t1);line-height:1;
+}
+.groom-sub{
+  font-family:var(--ff-mono);
+  font-size:8px;letter-spacing:3px;
+  color:var(--t4);margin-top:5px;text-transform:uppercase;
+}
+.back-btn{
+  font-family:var(--ff-mono);
+  font-size:9px;letter-spacing:2px;
+  color:var(--t4);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:4px;
+  padding:6px 12px;background:none;
+  cursor:pointer;transition:all 0.12s;
+  text-transform:uppercase;
+}
+.back-btn:hover{color:var(--gold);border-color:var(--goldbd)}
+.sync-chip{
+  font-family:var(--ff-mono);
+  font-size:8px;letter-spacing:2px;
+  color:var(--green);text-transform:uppercase;
+  display:flex;align-items:center;gap:5px;
+}
+.sync-chip::before{
+  content:'';width:6px;height:6px;
+  border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:pulse 2s ease-in-out infinite;
+}
+
+/* THE STAGE — glowing display box for all games */
+.stage{
+  background:var(--bg2);
+  border:1px solid rgba(245,166,35,0.12);
+  border-radius:18px;
+  padding:32px 28px;
+  text-align:center;
+  min-height:300px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:20px;
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 0 60px rgba(0,0,0,0.4),
+             0 8px 40px rgba(0,0,0,0.6);
+}
+.stage::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,
+    transparent,rgba(245,166,35,0.25),transparent);
+}
+.stage-corner-tl,
+.stage-corner-tr,
+.stage-corner-bl,
+.stage-corner-br{
+  position:absolute;
+  width:14px;height:14px;
+  border-color:rgba(245,166,35,0.25);
+  border-style:solid;
+}
+.stage-corner-tl{top:8px;left:8px;border-width:1px 0 0 1px;border-radius:4px 0 0 0}
+.stage-corner-tr{top:8px;right:8px;border-width:1px 1px 0 0;border-radius:0 4px 0 0}
+.stage-corner-bl{bottom:8px;left:8px;border-width:0 0 1px 1px;border-radius:0 0 0 4px}
+.stage-corner-br{bottom:8px;right:8px;border-width:0 1px 1px 0;border-radius:0 0 4px 0}
+
+.stage-label{
+  position:absolute;top:12px;left:50%;
+  transform:translateX(-50%);
+  font-family:var(--ff-mono);font-size:8px;
+  letter-spacing:3px;color:var(--t4);
+  text-transform:uppercase;white-space:nowrap;
+}
+.round-timer{
+  position:absolute;top:12px;right:14px;
+  display:flex;align-items:center;gap:5px;
+}
+.rt-bar{
+  width:52px;height:3px;
+  background:rgba(255,255,255,0.06);
+  border-radius:2px;overflow:hidden;
+}
+.rt-fill{
+  height:100%;background:var(--gold);
+  border-radius:2px;
+  transition:width 0.15s linear;
+}
+.rt-label{
+  font-family:var(--ff-mono);font-size:9px;
+  color:var(--t4);min-width:20px;text-align:right;
+}
+
+/* History pills */
+.hist-row{
+  display:flex;gap:4px;overflow-x:auto;
+  padding:2px 0 4px;scrollbar-width:none;
+  margin-top:12px;
+}
+.hist-row::-webkit-scrollbar{display:none}
+.hp{
+  flex-shrink:0;
+  font-family:var(--ff-mono);font-size:10px;
+  padding:3px 8px;border-radius:50px;
+  border:1px solid rgba(255,255,255,0.07);
+  background:var(--bg3);color:var(--t4);
+  white-space:nowrap;
+}
+.hp.r{border-color:rgba(224,48,48,0.25);color:var(--red);background:var(--redbg)}
+.hp.g{border-color:rgba(34,200,122,0.25);color:var(--green);background:var(--greenbg)}
+.hp.o{border-color:rgba(245,166,35,0.22);color:var(--gold);background:var(--goldglow)}
+
+/* ============================================================
+   ROULETTE
+============================================================ */
+#v-roulette .stage{padding:24px}
+
+.roulette-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+  width:100%;
+}
+#roulette-canvas{
+  width:300px;height:300px;
+  border-radius:50%;
+  display:block;
+  flex-shrink:0;
+  box-shadow:0 0 0 5px rgba(245,130,0,0.25),
+             0 0 0 9px rgba(200,80,0,0.12),
+             0 0 50px rgba(245,100,0,0.15),
+             0 0 80px rgba(0,0,0,0.6);
+}
+.roulette-wrap{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  gap:32px;
+  width:100%;
+  flex-wrap:wrap;
+}
+.roulette-info{
+  display:flex;flex-direction:column;
+  align-items:flex-start;gap:12px;
+  min-width:160px;
+}
+#roul-num{
+  font-family:var(--ff-title);
+  font-size:100px;line-height:1;
+  min-height:110px;
+  transition:color 0.3s;
+}
+#roul-num.clr-red{color:var(--red);text-shadow:0 0 40px rgba(224,48,48,0.6),0 0 80px rgba(224,48,48,0.2)}
+#roul-num.clr-black{color:var(--t1);text-shadow:0 0 20px rgba(245,237,232,0.3)}
+#roul-num.clr-green{color:var(--green);text-shadow:0 0 40px rgba(34,200,122,0.6),0 0 80px rgba(34,200,122,0.2)}
+#roul-label{
+  font-family:var(--ff-mono);font-size:12px;
+  letter-spacing:4px;color:var(--t3);
+  text-transform:uppercase;min-height:18px;
+}
+.roul-grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:2px;width:100%;max-width:460px;
+}
+.rcell{
+  font-family:var(--ff-mono);font-size:10px;
+  padding:7px 2px;text-align:center;
+  border-radius:3px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.04);
+  color:var(--t4);transition:all 0.25s;
+}
+.rcell.r{color:var(--red);background:rgba(224,48,48,0.06);border-color:rgba(224,48,48,0.12)}
+.rcell.b{color:var(--t2);background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.07)}
+.rcell.z{color:var(--green);background:rgba(34,200,122,0.07);border-color:rgba(34,200,122,0.15)}
+.rcell.lit{
+  background:rgba(245,166,35,0.22)!important;
+  border-color:var(--gold)!important;
+  color:var(--gold)!important;
+  box-shadow:0 0 8px rgba(245,166,35,0.25);
+}
+
+/* ============================================================
+   5 DICE
+============================================================ */
+.dice-row{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+}
+.die{
+  width:64px;height:64px;
+  background:var(--bg4);
+  border:2px solid rgba(255,255,255,0.1);
+  border-radius:12px;
+  position:relative;
+  box-shadow:0 4px 16px rgba(0,0,0,0.5),
+             inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.die.rolling{animation:dieshake 0.55s ease-in-out}
+@keyframes dieshake{
+  0%,100%{transform:rotate(0) scale(1)}
+  20%{transform:rotate(-16deg) scale(1.07)}
+  40%{transform:rotate(18deg) scale(0.93)}
+  60%{transform:rotate(-12deg) scale(1.09)}
+  80%{transform:rotate(9deg) scale(0.96)}
+}
+.pip{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--t1);position:absolute;
+}
+/* pip coords */
+.die[data-v="1"] .pip:nth-child(1){top:50%;left:50%;transform:translate(-50%,-50%)}
+.die[data-v="2"] .pip:nth-child(1){top:25%;left:25%;transform:translate(-50%,-50%)}
+.die[data-v="2"] .pip:nth-child(2){top:75%;left:75%;transform:translate(-50%,-50%)}
+.die[data-v="3"] .pip:nth-child(1){top:22%;left:22%;transform:translate(-50%,-50%)}
+.die[data-v="3"] .pip:nth-child(2){top:50%;left:50%;transform:translate(-50%,-50%)}
+.die[data-v="3"] .pip:nth-child(3){top:78%;left:78%;transform:translate(-50%,-50%)}
+.die[data-v="4"] .pip:nth-child(1){top:25%;left:25%;transform:translate(-50%,-50%)}
+.die[data-v="4"] .pip:nth-child(2){top:25%;left:75%;transform:translate(-50%,-50%)}
+.die[data-v="4"] .pip:nth-child(3){top:75%;left:25%;transform:translate(-50%,-50%)}
+.die[data-v="4"] .pip:nth-child(4){top:75%;left:75%;transform:translate(-50%,-50%)}
+.die[data-v="5"] .pip:nth-child(1){top:25%;left:25%;transform:translate(-50%,-50%)}
+.die[data-v="5"] .pip:nth-child(2){top:25%;left:75%;transform:translate(-50%,-50%)}
+.die[data-v="5"] .pip:nth-child(3){top:50%;left:50%;transform:translate(-50%,-50%)}
+.die[data-v="5"] .pip:nth-child(4){top:75%;left:25%;transform:translate(-50%,-50%)}
+.die[data-v="5"] .pip:nth-child(5){top:75%;left:75%;transform:translate(-50%,-50%)}
+.die[data-v="6"] .pip:nth-child(1){top:25%;left:25%;transform:translate(-50%,-50%)}
+.die[data-v="6"] .pip:nth-child(2){top:25%;left:75%;transform:translate(-50%,-50%)}
+.die[data-v="6"] .pip:nth-child(3){top:50%;left:25%;transform:translate(-50%,-50%)}
+.die[data-v="6"] .pip:nth-child(4){top:50%;left:75%;transform:translate(-50%,-50%)}
+.die[data-v="6"] .pip:nth-child(5){top:75%;left:25%;transform:translate(-50%,-50%)}
+.die[data-v="6"] .pip:nth-child(6){top:75%;left:75%;transform:translate(-50%,-50%)}
+.dice-combo{
+  font-family:var(--ff-title);
+  font-size:40px;letter-spacing:4px;
+  color:var(--gold);min-height:50px;
+  text-shadow:0 0 20px rgba(245,166,35,0.4);
+}
+.dice-sum-label{
+  font-family:var(--ff-mono);font-size:11px;
+  color:var(--t4);letter-spacing:2px;
+}
+
+/* ============================================================
+   COIN FLIP
+============================================================ */
+.coin-wrap{width:150px;height:150px;perspective:700px;margin:0 auto}
+.coin{
+  width:100%;height:100%;
+  position:relative;transform-style:preserve-3d;
+  border-radius:50%;
+}
+.coin.spinning{animation:coinspin 1.3s ease-in-out forwards}
+@keyframes coinspin{
+  0%{transform:rotateY(0)}
+  100%{transform:rotateY(1800deg)}
+}
+.cface{
+  position:absolute;inset:0;border-radius:50%;
+  backface-visibility:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-title);font-size:52px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.6),
+             0 0 0 3px rgba(245,166,35,0.3);
+}
+.cface-h{
+  background:radial-gradient(circle at 33% 33%,#ffe060,#c98820,#7a5010);
+  color:rgba(0,0,0,0.35);
+}
+.cface-t{
+  background:radial-gradient(circle at 33% 33%,#ddd0b8,#b09878,#6a5838);
+  color:rgba(0,0,0,0.3);
+  transform:rotateY(180deg);
+}
+#coin-result{
+  font-family:var(--ff-title);font-size:48px;
+  letter-spacing:6px;min-height:60px;
+  transition:color 0.3s;
+}
+#coin-result.heads{
+  color:var(--gold);
+  text-shadow:0 0 30px rgba(245,166,35,0.5);
+}
+#coin-result.tails{color:var(--t2)}
+.streak-block{font-family:var(--ff-mono);font-size:9px;letter-spacing:2px;color:var(--t4);text-align:center}
+#streak-num{
+  display:block;
+  font-family:var(--ff-title);font-size:52px;
+  color:var(--green);line-height:1;
+  text-shadow:0 0 20px rgba(34,200,122,0.4);
+}
+
+/* ============================================================
+   KENO
+============================================================ */
+.kgrid{
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:4px;
+  max-width:540px;margin:0 auto;
+}
+.kc{
+  aspect-ratio:1;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:5px;
+  background:var(--bg3);
+  font-family:var(--ff-mono);
+  font-size:clamp(10px,1.4vw,13px);
+  color:var(--t4);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;user-select:none;
+}
+.kc.drawn{
+  background:var(--goldglow);
+  border-color:var(--goldbd);
+  color:var(--gold);
+  font-weight:500;
+  animation:kcpop 0.32s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 0 8px rgba(245,166,35,0.2);
+}
+@keyframes kcpop{
+  0%{transform:scale(0.65);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+.keno-info{
+  display:flex;gap:24px;justify-content:center;flex-wrap:wrap;
+  margin-top:4px;
+}
+.ki{text-align:center}
+.ki-val{
+  font-family:var(--ff-title);font-size:36px;
+  color:var(--gold);display:block;line-height:1;
+}
+.ki-label{
+  font-family:var(--ff-mono);font-size:8px;
+  letter-spacing:2px;color:var(--t4);text-transform:uppercase;
+}
+
+/* ============================================================
+   BLIND MAN'S BLUFF
+============================================================ */
+.bluff-layout{
+  display:flex;flex-direction:column;
+  align-items:center;gap:24px;width:100%;
+}
+.bluff-players{
+  display:flex;gap:36px;
+  align-items:flex-end;justify-content:center;
+  flex-wrap:wrap;
+}
+.bplayer{
+  display:flex;flex-direction:column;
+  align-items:center;gap:10px;
+}
+.bplayer-name{
+  font-family:var(--ff-mono);font-size:8px;
+  letter-spacing:3px;color:var(--t4);text-transform:uppercase;
+}
+/* Playing card */
+.pcard{
+  width:86px;height:120px;
+  border-radius:8px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:4px;
+  font-family:Georgia,serif;
+  font-size:30px;font-weight:700;
+  box-shadow:0 6px 20px rgba(0,0,0,0.6);
+  transition:transform 0.5s,opacity 0.3s;
+  position:relative;
+}
+.pcard.back{
+  background:linear-gradient(150deg,#1a2860,#0e1440);
+  border:1px solid rgba(80,120,200,0.2);
+}
+.pcard.back::after{
+  content:'';position:absolute;
+  inset:6px;border:1px solid rgba(80,120,200,0.15);
+  border-radius:4px;
+}
+.pcard.red-c{background:#fff;color:#c01818}
+.pcard.blk-c{background:#fff;color:#111}
+.pcard.lg{width:100px;height:140px;font-size:36px}
+.pcard .suit{font-size:20px;line-height:1}
+.pcard .rank{line-height:1}
+.pcard.lg .suit{font-size:24px}
+
+.bluff-vs{
+  font-family:var(--ff-title);font-size:32px;
+  color:var(--t4);letter-spacing:2px;align-self:center;
+}
+.bluff-pot-label{
+  font-family:var(--ff-mono);font-size:9px;
+  letter-spacing:2px;color:var(--t4);text-transform:uppercase;
+}
+#bluff-winner{
+  font-family:var(--ff-title);font-size:44px;
+  letter-spacing:4px;min-height:56px;
+  transition:color 0.3s;
+}
+#bluff-winner.p-win{
+  color:var(--green);
+  text-shadow:0 0 30px rgba(34,200,122,0.5);
+}
+#bluff-winner.h-win{
+  color:var(--red);
+  text-shadow:0 0 30px rgba(224,48,48,0.4);
+}
+#bluff-winner.tie{
+  color:var(--gold);
+  text-shadow:0 0 20px rgba(245,166,35,0.4);
+}
+#bluff-phase{
+  font-family:var(--ff-mono);font-size:9px;
+  letter-spacing:3px;color:var(--t4);text-transform:uppercase;
+}
+
+/* ============================================================
+   RANDOM EMOJI
+============================================================ */
+.emoji-stage{
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+  width:100%;
+}
+#emoji-main{
+  font-size:100px;line-height:1;
+  min-height:115px;
+  display:flex;align-items:center;justify-content:center;
+  filter:drop-shadow(0 0 24px rgba(245,166,35,0.25));
+}
+#emoji-main.pop{animation:emjpop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes emjpop{
+  0%{transform:scale(0.4) rotate(-20deg);opacity:0}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+#emoji-title{
+  font-family:var(--ff-title);font-size:40px;
+  letter-spacing:5px;color:var(--t1);
+  min-height:50px;text-align:center;
+}
+#emoji-cat{
+  font-family:var(--ff-mono);font-size:9px;
+  letter-spacing:3px;color:var(--t4);
+  text-transform:uppercase;
+}
+.emoji-history-row{
+  display:flex;gap:10px;justify-content:center;
+  flex-wrap:wrap;margin-top:4px;
+}
+.ehist{
+  font-size:28px;
+  opacity:0.25;transition:opacity 0.2s;
+  cursor:default;
+}
+.ehist.recent{opacity:0.85}
+
+/* ============================================================
+   GLOBAL ATOMS
+============================================================ */
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.35;transform:scale(0.7)}
+}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+
+@media(max-width:600px){
+  .groom{padding:18px 12px 48px}
+  #roulette-canvas{width:220px;height:220px}
+  .roul-grid{grid-template-columns:repeat(10,1fr)}
+  .pcard.lg{width:82px;height:114px;font-size:28px}
+  .pcard.lg .suit{font-size:18px}
+  .bluff-players{gap:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- GOLD TICKER -->
+<div id="ticker-bar">
+  <div id="ticker-inner"></div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#" onclick="showView('lobby');return false">
+    TG<sub>TELEGAMING SUITE &bull; ZENGINE.SITE</sub>
+  </a>
+  <div class="nav-divider"></div>
+  <div class="nav-rooms">
+    <button class="nb on"  data-view="lobby"    onclick="showView('lobby')">&#127381; LOTTO LOBBY</button>
+    <button class="nb"     data-view="roulette" onclick="showView('roulette')">&#9898; ROULETTE</button>
+    <button class="nb"     data-view="dice"     onclick="showView('dice')">&#9861; 5 DICE</button>
+    <button class="nb"     data-view="coin"     onclick="showView('coin')">&#9672; COIN FLIP</button>
+    <button class="nb"     data-view="keno"     onclick="showView('keno')">&#9635; KENO</button>
+    <button class="nb"     data-view="bluff"    onclick="showView('bluff')">&#9824; BLUFF</button>
+    <button class="nb"     data-view="emoji"    onclick="showView('emoji')">&#127808; EMOJI</button>
+    <a class="nb" href="https://ss.zengine.site" target="_blank">&#9733; SHOWDOWN SALOON &#8599;</a>
+  </div>
+  <div class="nav-live">LIVE</div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- ====================================================== -->
+  <!-- LOTTO LOBBY                                            -->
+  <!-- ====================================================== -->
+  <div id="v-lobby" class="view on">
+    <div class="lobby-hero">
+      <div class="hero-glow"></div>
+      <canvas id="particle-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:0;opacity:0.7"></canvas>
+      <div style="position:relative;z-index:1">
+        <div class="hero-eyebrow">ZENGINE &bull; TELEGAMING SUITE &bull; LIVE BROADCAST</div>
+        <div class="hero-tg-logo">
+          <div class="tg-ring">
+            <div class="tg-letters">TG</div>
+          </div>
+        </div>
+        <div class="hero-sub">The Exchange Floor &mdash; All Tables Open</div>
+      </div>
+    </div>
+
+    <!-- LOTTO DRAWS -->
+    <div style="max-width:920px;margin:28px auto 0;padding:0 20px">
+      <div class="section-head">&#127381; Live Lotto Drawings &mdash; synced universal time</div>
+      <div class="lotto-wrap">
+        <div class="lotto-card" id="pick3-card">
+          <div class="lotto-game">PICK 3</div>
+          <div class="lotto-desc">Daily three-digit draw</div>
+          <div class="lotto-balls" id="pick3-balls"></div>
+          <div class="lotto-foot">
+            <span class="lotto-cd">Next draw: <span class="cd-num" id="pick3-cd">—</span>s</span>
+            <span style="font-family:var(--ff-mono);font-size:8px;color:var(--t5)">3 of 9</span>
+          </div>
+        </div>
+        <div class="lotto-card" id="pick5-card">
+          <div class="lotto-game">PICK 5</div>
+          <div class="lotto-desc">Five-number classic</div>
+          <div class="lotto-balls" id="pick5-balls"></div>
+          <div class="lotto-foot">
+            <span class="lotto-cd">Next draw: <span class="cd-num" id="pick5-cd">—</span>s</span>
+            <span style="font-family:var(--ff-mono);font-size:8px;color:var(--t5)">5 of 39</span>
+          </div>
+        </div>
+        <div class="lotto-card" id="pb-card">
+          <div class="lotto-game">POWERBALL</div>
+          <div class="lotto-desc">Five white + powerball</div>
+          <div class="lotto-balls" id="pb-balls"></div>
+          <div class="lotto-foot">
+            <span class="lotto-cd">Next draw: <span class="cd-num" id="pb-cd">—</span>s</span>
+            <span style="font-family:var(--ff-mono);font-size:8px;color:var(--t5)">5 of 69 + PB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BROWSE ROOMS -->
+    <div class="browse-wrap">
+      <div class="section-head">&#8594; Take a Look Around</div>
+      <div class="rooms-grid" id="rooms-grid"></div>
+      <div class="lobby-footer" style="margin-top:32px">
+        <a href="https://zengine.site" target="_blank">zengine.site</a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://zengine.shop" target="_blank">zengine.shop</a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://ss.zengine.site" target="_blank">ss.zengine.site &mdash; Showdown Saloon</a>
+        &nbsp;&middot;&nbsp;
+        <span>Pure spectator &bull; No interaction &bull; Universal sync</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- ROULETTE                                               -->
+  <!-- ====================================================== -->
+  <div id="v-roulette" class="view">
+    <div class="groom">
+      <div class="groom-head">
+        <div class="groom-title-block">
+          <button class="back-btn" onclick="showView('lobby')">&#8592; LOBBY</button>
+          <div class="groom-title">ROULETTE</div>
+          <div class="groom-sub">European single-zero &bull; 37 numbers &bull; universal sync</div>
+        </div>
+        <div class="sync-chip">SYNCED BROADCAST</div>
+      </div>
+      <div class="stage" id="roulette-stage">
+        <div class="stage-corner-tl"></div><div class="stage-corner-tr"></div>
+        <div class="stage-corner-bl"></div><div class="stage-corner-br"></div>
+        <div class="stage-label">EUROPEAN ROULETTE &bull; SINGLE ZERO</div>
+        <div class="round-timer"><div class="rt-bar"><div class="rt-fill" id="roul-timer-fill"></div></div><span class="rt-label" id="roul-timer-num">30</span>s</div>
+        <div class="roulette-wrap">
+          <canvas id="roulette-canvas" width="600" height="600"></canvas>
+          <div class="roulette-info">
+            <div id="roul-num" class="clr-green">&#8212;</div>
+            <div id="roul-label"></div>
+            <div class="roul-grid" id="roul-grid"></div>
+          </div>
+        </div>
+      </div>
+      <div class="hist-row" id="roul-hist"></div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- 5 DICE                                                 -->
+  <!-- ====================================================== -->
+  <div id="v-dice" class="view">
+    <div class="groom">
+      <div class="groom-head">
+        <div class="groom-title-block">
+          <button class="back-btn" onclick="showView('lobby')">&#8592; LOBBY</button>
+          <div class="groom-title">5 DICE</div>
+          <div class="groom-sub">Five dice &bull; combinations &bull; rolling every 20s</div>
+        </div>
+        <div class="sync-chip">SYNCED BROADCAST</div>
+      </div>
+      <div class="stage" id="dice-stage">
+        <div class="stage-corner-tl"></div><div class="stage-corner-tr"></div>
+        <div class="stage-corner-bl"></div><div class="stage-corner-br"></div>
+        <div class="stage-label">5-DICE ROLL</div>
+        <div class="round-timer"><div class="rt-bar"><div class="rt-fill" id="dice-timer-fill"></div></div><span class="rt-label" id="dice-timer-num">20</span>s</div>
+        <div class="dice-row" id="dice-row"></div>
+        <div class="dice-combo" id="dice-combo">—</div>
+        <div class="dice-sum-label" id="dice-sum"></div>
+      </div>
+      <div class="hist-row" id="dice-hist"></div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- COIN FLIP                                              -->
+  <!-- ====================================================== -->
+  <div id="v-coin" class="view">
+    <div class="groom">
+      <div class="groom-head">
+        <div class="groom-title-block">
+          <button class="back-btn" onclick="showView('lobby')">&#8592; LOBBY</button>
+          <div class="groom-title">COIN FLIP</div>
+          <div class="groom-sub">Heads or tails &bull; streak tracking &bull; flips every 12s</div>
+        </div>
+        <div class="sync-chip">SYNCED BROADCAST</div>
+      </div>
+      <div class="stage" id="coin-stage">
+        <div class="stage-corner-tl"></div><div class="stage-corner-tr"></div>
+        <div class="stage-corner-bl"></div><div class="stage-corner-br"></div>
+        <div class="stage-label">COIN FLIP</div>
+        <div class="round-timer"><div class="rt-bar"><div class="rt-fill" id="coin-timer-fill"></div></div><span class="rt-label" id="coin-timer-num">12</span>s</div>
+        <div class="coin-wrap"><div class="coin" id="coin"><div class="cface cface-h">H</div><div class="cface cface-t">T</div></div></div>
+        <div id="coin-result">—</div>
+        <div class="streak-block">
+          <span id="streak-num">0</span>
+          CONSECUTIVE STREAK
+        </div>
+      </div>
+      <div class="hist-row" id="coin-hist"></div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- KENO                                                   -->
+  <!-- ====================================================== -->
+  <div id="v-keno" class="view">
+    <div class="groom">
+      <div class="groom-head">
+        <div class="groom-title-block">
+          <button class="back-btn" onclick="showView('lobby')">&#8592; LOBBY</button>
+          <div class="groom-title">1-80 KENO</div>
+          <div class="groom-sub">20 numbers drawn &bull; new draw every 45s</div>
+        </div>
+        <div class="sync-chip">SYNCED BROADCAST</div>
+      </div>
+      <div class="stage" id="keno-stage">
+        <div class="stage-corner-tl"></div><div class="stage-corner-tr"></div>
+        <div class="stage-corner-bl"></div><div class="stage-corner-br"></div>
+        <div class="stage-label">1-80 KENO</div>
+        <div class="round-timer"><div class="rt-bar"><div class="rt-fill" id="keno-timer-fill"></div></div><span class="rt-label" id="keno-timer-num">45</span>s</div>
+        <div class="kgrid" id="keno-grid"></div>
+        <div class="keno-info">
+          <div class="ki"><span class="ki-val" id="keno-drawn-count">0</span><span class="ki-label">Drawn</span></div>
+          <div class="ki"><span class="ki-val" id="keno-last">—</span><span class="ki-label">Last Number</span></div>
+        </div>
+      </div>
+      <div class="hist-row" id="keno-hist"></div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- BLIND MAN'S BLUFF                                      -->
+  <!-- ====================================================== -->
+  <div id="v-bluff" class="view">
+    <div class="groom">
+      <div class="groom-head">
+        <div class="groom-title-block">
+          <button class="back-btn" onclick="showView('lobby')">&#8592; LOBBY</button>
+          <div class="groom-title">BLIND MAN'S BLUFF</div>
+          <div class="groom-sub">Single card draw &bull; player vs house &bull; new hand every 18s</div>
+        </div>
+        <div class="sync-chip">SYNCED BROADCAST</div>
+      </div>
+      <div class="stage" id="bluff-stage">
+        <div class="stage-corner-tl"></div><div class="stage-corner-tr"></div>
+        <div class="stage-corner-bl"></div><div class="stage-corner-br"></div>
+        <div class="stage-label">BLIND MAN'S BLUFF</div>
+        <div class="round-timer"><div class="rt-bar"><div class="rt-fill" id="bluff-timer-fill"></div></div><span class="rt-label" id="bluff-timer-num">18</span>s</div>
+        <div class="bluff-layout">
+          <div class="bluff-players">
+            <div class="bplayer">
+              <div class="pcard back lg" id="bluff-player-card"><div class="suit"></div><div class="rank"></div></div>
+              <div class="bplayer-name">PLAYER</div>
+            </div>
+            <div class="bluff-vs">VS</div>
+            <div class="bplayer">
+              <div class="pcard back lg" id="bluff-house-card"><div class="suit"></div><div class="rank"></div></div>
+              <div class="bplayer-name">HOUSE</div>
+            </div>
+          </div>
+          <div id="bluff-winner">&mdash;</div>
+          <div id="bluff-phase">DEALING&#8230;</div>
+        </div>
+      </div>
+      <div class="hist-row" id="bluff-hist"></div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- RANDOM EMOJI                                           -->
+  <!-- ====================================================== -->
+  <div id="v-emoji" class="view">
+    <div class="groom">
+      <div class="groom-head">
+        <div class="groom-title-block">
+          <button class="back-btn" onclick="showView('lobby')">&#8592; LOBBY</button>
+          <div class="groom-title">RANDOM EMOJI</div>
+          <div class="groom-sub">The winning emoji appears &bull; new draw every 10s</div>
+        </div>
+        <div class="sync-chip">SYNCED BROADCAST</div>
+      </div>
+      <div class="stage" id="emoji-stage">
+        <div class="stage-corner-tl"></div><div class="stage-corner-tr"></div>
+        <div class="stage-corner-bl"></div><div class="stage-corner-br"></div>
+        <div class="stage-label">RANDOM EMOJI DRAW</div>
+        <div class="round-timer"><div class="rt-bar"><div class="rt-fill" id="emoji-timer-fill"></div></div><span class="rt-label" id="emoji-timer-num">10</span>s</div>
+        <div class="emoji-stage">
+          <div id="emoji-main">&#127808;</div>
+          <div id="emoji-title">—</div>
+          <div id="emoji-cat"></div>
+          <div class="emoji-history-row" id="emoji-hist-row"></div>
+        </div>
+      </div>
+      <div class="hist-row" id="emoji-hist"></div>
+    </div>
+  </div>
+
+</div><!-- #main -->
+
+<script>
+// ================================================================
+//  TELEGAMING SUITE  |  zengine.site
+//  Pure spectator TV broadcast.
+//  Universal time synchronization via Date.now().
+//  Zero player interaction. Same output for all viewers worldwide
+//  at the same unix timestamp.
+//
+//  Sync model: floor(Date.now() / INTERVAL_MS) == "round index"
+//  seededRand(roundIndex) == deterministic outcome for that round.
+// ================================================================
+
+'use strict';
+
+// ── Seeded PRNG (mulberry32) — deterministic from seed ──────────
+function prng(seed) {
+  let s = seed >>> 0;
+  return function() {
+    s += 0x6D2B79F5;
+    let t = s;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// rand int [min, max] inclusive, deterministic
+function rInt(rng, min, max) {
+  return min + Math.floor(rng() * (max - min + 1));
+}
+
+// get current round index for a given interval
+function roundIndex(intervalMs) {
+  return Math.floor(Date.now() / intervalMs);
+}
+
+// seconds until next round
+function secsUntilNext(intervalMs) {
+  return Math.ceil((intervalMs - (Date.now() % intervalMs)) / 1000);
+}
+
+// fractional progress through current round [0,1)
+function roundProgress(intervalMs) {
+  return (Date.now() % intervalMs) / intervalMs;
+}
+
+// ── View routing ─────────────────────────────────────────────────
+let _currentView = 'lobby';
+function showView(name) {
+  _currentView = name;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.nb[data-view]').forEach(b => {
+    b.classList.toggle('on', b.dataset.view === name);
+  });
+  const el = document.getElementById('v-' + name);
+  if (el) el.classList.add('on');
+  window.scrollTo(0, 0);
+}
+
+// ── Global ticker data ───────────────────────────────────────────
+const TICKER_ITEMS = [
+  'ROULETTE &bull; 17 RED', 'KENO &bull; 14 DRAWN', '5 DICE &bull; FULL HOUSE',
+  'COIN FLIP &bull; HEADS &#215;4', 'POWERBALL &bull; 8 &bull; 22 &bull; 41 &bull; 55 &bull; 68 + 12',
+  'BLUFF &bull; PLAYER WINS &bull; A &gt; 9', 'ROULETTE &bull; 0 GREEN',
+  'EMOJI &bull; &#127808; BOUQUET', 'PICK 3 &bull; 4 &bull; 7 &bull; 2',
+  '5 DICE &bull; THREE OF A KIND', 'KENO &bull; 20 OF 20 REVEALED',
+  'SHOWDOWN SALOON &bull; GPT-4 RAISES &bull; SS.ZENGINE.SITE',
+  'COIN FLIP &bull; TAILS STREAK &#215;6', 'BLUFF &bull; HOUSE WINS &bull; K &gt; 7',
+  'ROULETTE &bull; 32 RED', 'EMOJI &bull; &#128640; ROCKET LAUNCH',
+  'PICK 5 &bull; 7 &bull; 19 &bull; 33 &bull; 44 &bull; 61'
+];
+
+function buildTicker() {
+  const inner = document.getElementById('ticker-inner');
+  const full = [...TICKER_ITEMS, ...TICKER_ITEMS];
+  inner.innerHTML = full.map(t =>
+    `<span class="ti"><span>${t}</span></span><span class="ti-sep">&bull;</span>`
+  ).join('');
+}
+
+// ── Room portal cards for lobby ──────────────────────────────────
+const ROOM_DEFS = [
+  { id:'roulette', icon:'&#9898;', name:'ROULETTE', desc:'European single-zero wheel. 37 numbers spin every 30 seconds.', live:'Spinning now' },
+  { id:'dice',     icon:'&#9861;', name:'5 DICE',   desc:'Five dice hit the table every 20 seconds. Watch the combos land.', live:'Rolling now' },
+  { id:'coin',     icon:'&#9672;', name:'COIN FLIP', desc:'Heads or tails every 12 seconds. Track the streak counter.', live:'Flipping now' },
+  { id:'keno',     icon:'&#9635;', name:'KENO',      desc:'20 numbers drawn from 1-80. Full reveal every 45 seconds.', live:'Drawing now' },
+  { id:'bluff',    icon:'&#9824;', name:"BLIND MAN'S BLUFF", desc:'Player vs House, one card each. New hand every 18 seconds.', live:'Dealing now' },
+  { id:'emoji',    icon:'&#127808;', name:'RANDOM EMOJI', desc:'The winning emoji appears every 10 seconds. Pure spectacle.', live:'Drawing now' },
+];
+
+function buildRoomsGrid() {
+  const grid = document.getElementById('rooms-grid');
+  // Regular rooms
+  ROOM_DEFS.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'rp';
+    d.innerHTML = `
+      <span class="rp-icon">${r.icon}</span>
+      <div class="rp-name">${r.name}</div>
+      <div class="rp-desc">${r.desc}</div>
+      <div class="rp-foot">
+        <span class="rp-live">${r.live}</span>
+        <span class="rp-arrow">&#8594;</span>
+      </div>`;
+    d.addEventListener('click', () => showView(r.id));
+    grid.appendChild(d);
+  });
+  // Showdown Saloon
+  const ss = document.createElement('div');
+  ss.className = 'rp saloon';
+  ss.innerHTML = `
+    <div class="saloon-banner">&#9733; FEATURED ROOM &mdash; LLM COMPETITION</div>
+    <span class="rp-icon">&#9824;</span>
+    <div class="rp-name">SHOWDOWN SALOON</div>
+    <div class="rp-desc">Where AI models compete head-to-head at poker. Claude, GPT-4, Gemini — live at <strong>ss.zengine.site</strong>. The action has been insane since iteration.</div>
+    <div class="rp-foot">
+      <span class="rp-live">AI poker live now</span>
+      <span class="rp-arrow">&#8599;</span>
+    </div>
+    <a class="saloon-url" href="https://ss.zengine.site" target="_blank">ss.zengine.site &#8599;</a>`;
+  ss.addEventListener('click', () => window.open('https://ss.zengine.site', '_blank'));
+  grid.appendChild(ss);
+}
+
+// ================================================================
+//  LOTTO DRAWS — synced by minute/hour/day
+// ================================================================
+const LOTTO_INTERVAL = {
+  pick3: 3 * 60 * 1000,   // every 3 min
+  pick5: 7 * 60 * 1000,   // every 7 min
+  pb:    15 * 60 * 1000,  // every 15 min
+};
+
+function lottoSeed(game) {
+  return roundIndex(LOTTO_INTERVAL[game]);
+}
+
+function drawPick3(roundIdx) {
+  const r = prng(roundIdx * 1000 + 3);
+  return [rInt(r, 0, 9), rInt(r, 0, 9), rInt(r, 0, 9)];
+}
+
+function drawPick5(roundIdx) {
+  const r = prng(roundIdx * 1000 + 5);
+  const pool = Array.from({length: 39}, (_, i) => i + 1);
+  const drawn = [];
+  for (let i = 0; i < 5; i++) {
+    const idx = Math.floor(r() * pool.length);
+    drawn.push(pool.splice(idx, 1)[0]);
+  }
+  return drawn.sort((a, b) => a - b);
+}
+
+function drawPowerball(roundIdx) {
+  const r = prng(roundIdx * 1000 + 99);
+  const pool = Array.from({length: 69}, (_, i) => i + 1);
+  const white = [];
+  for (let i = 0; i < 5; i++) {
+    const idx = Math.floor(r() * pool.length);
+    white.push(pool.splice(idx, 1)[0]);
+  }
+  white.sort((a, b) => a - b);
+  const pb = rInt(r, 1, 26);
+  return { white, pb };
+}
+
+function makeBall(num, cls) {
+  const b = document.createElement('div');
+  b.className = `lball ${cls} popping`;
+  b.textContent = num;
+  return b;
+}
+
+// Track last lotto round indexes to avoid rebuilding every tick
+let _lottoLastRound = { pick3: -1, pick5: -1, pb: -1 };
+
+function renderLotto() {
+  // Always update countdowns
+  document.getElementById('pick3-cd').textContent = secsUntilNext(LOTTO_INTERVAL.pick3);
+  document.getElementById('pick5-cd').textContent = secsUntilNext(LOTTO_INTERVAL.pick5);
+  document.getElementById('pb-cd').textContent    = secsUntilNext(LOTTO_INTERVAL.pb);
+
+  // Only rebuild balls when round changes
+  const p3ri = lottoSeed('pick3');
+  if (p3ri !== _lottoLastRound.pick3) {
+    _lottoLastRound.pick3 = p3ri;
+    const p3 = drawPick3(p3ri);
+    const el = document.getElementById('pick3-balls');
+    el.innerHTML = '';
+    p3.forEach((n, i) => {
+      const b = makeBall(n, 'lb-white');
+      b.style.animationDelay = (i * 80) + 'ms';
+      el.appendChild(b);
+    });
+  }
+
+  const p5ri = lottoSeed('pick5');
+  if (p5ri !== _lottoLastRound.pick5) {
+    _lottoLastRound.pick5 = p5ri;
+    const p5 = drawPick5(p5ri);
+    const el = document.getElementById('pick5-balls');
+    el.innerHTML = '';
+    p5.forEach((n, i) => {
+      const b = makeBall(n, 'lb-white');
+      b.style.animationDelay = (i * 80) + 'ms';
+      el.appendChild(b);
+    });
+  }
+
+  const pbri = lottoSeed('pb');
+  if (pbri !== _lottoLastRound.pb) {
+    _lottoLastRound.pb = pbri;
+    const pbData = drawPowerball(pbri);
+    const el = document.getElementById('pb-balls');
+    el.innerHTML = '';
+    pbData.white.forEach((n, i) => {
+      const b = makeBall(n, 'lb-white');
+      b.style.animationDelay = (i * 80) + 'ms';
+      el.appendChild(b);
+    });
+    const sep = document.createElement('div');
+    sep.className = 'lb-sep';
+    el.appendChild(sep);
+    const pb = makeBall(pbData.pb, 'lb-power');
+    pb.style.animationDelay = '480ms';
+    el.appendChild(pb);
+  }
+}
+
+// ================================================================
+//  ROULETTE
+// ================================================================
+const ROUL_INTERVAL = 30 * 1000;
+const ROUL_RED = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+// European wheel pocket order (clockwise starting from 0)
+const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+
+let _roulCanvas, _roulCtx;
+let _roulAngle = 0;         // current wheel angle (radians)
+let _roulTargetAngle = 0;   // target angle after spin
+let _roulLastNum = -1;
+let _roulHistory = [];
+let _roulAnimFrame = null;
+let _roulSpinning = false;
+
+function roulColor(n) {
+  if (n === 0) return 'green';
+  return ROUL_RED.has(n) ? 'red' : 'black';
+}
+
+function drawRouletteWheel(angle) {
+  const c = _roulCanvas;
+  const ctx = _roulCtx;
+  if (!c || !ctx) return;
+
+  // Canvas logical size (HTML attrs should be set to physical px)
+  const W = c.width, H = c.height;
+  const cx = W / 2, cy = H / 2;
+  // Leave a margin so nothing gets clipped
+  const R = Math.min(cx, cy) * 0.92;
+  const n = WHEEL_ORDER.length;
+  const slice = (2 * Math.PI) / n;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // ── Outer decorative ring ──
+  // Dark base ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, R + 2, 0, 2 * Math.PI);
+  ctx.fillStyle = '#1a0800';
+  ctx.fill();
+
+  // Gold rim glow
+  const rimGrad = ctx.createRadialGradient(cx, cy, R - 4, cx, cy, R + 6);
+  rimGrad.addColorStop(0,   'rgba(255,160,20,0.6)');
+  rimGrad.addColorStop(0.4, 'rgba(245,120,10,0.8)');
+  rimGrad.addColorStop(1,   'rgba(140,60,0,0.2)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, R + 6, 0, 2 * Math.PI);
+  ctx.strokeStyle = rimGrad;
+  ctx.lineWidth = 10;
+  ctx.stroke();
+
+  // ── Pockets ──
+  for (let i = 0; i < n; i++) {
+    const num = WHEEL_ORDER[i];
+    // Each pocket spans from angle - slice/2 to angle + slice/2
+    // We rotate the whole wheel by `angle` offset
+    const midA  = angle + i * slice;
+    const startA = midA - slice / 2;
+    const endA   = midA + slice / 2;
+
+    let col;
+    if (num === 0)              col = '#084a18';
+    else if (ROUL_RED.has(num)) col = '#5c0808';
+    else                        col = '#0e0e0e';
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R - 6, startA, endA);
+    ctx.closePath();
+    ctx.fillStyle = col;
+    ctx.fill();
+
+    // Thin gold divider line
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(
+      cx + (R - 6) * Math.cos(startA),
+      cy + (R - 6) * Math.sin(startA)
+    );
+    ctx.strokeStyle = 'rgba(245,140,0,0.2)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    // Number label — positioned at 78% of R from center
+    const labelR = R * 0.78;
+    const lx = cx + labelR * Math.cos(midA);
+    const ly = cy + labelR * Math.sin(midA);
+
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate(midA + Math.PI / 2);
+    ctx.fillStyle = num === 0 ? '#30e860' : ROUL_RED.has(num) ? '#ff7070' : '#d0d0d0';
+    const fontSize = Math.max(7, Math.round(R * 0.07));
+    ctx.font = `bold ${fontSize}px monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(num, 0, 0);
+    ctx.restore();
+  }
+
+  // ── Inner separator ring ──
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.55, 0, 2 * Math.PI);
+  ctx.strokeStyle = 'rgba(245,140,0,0.35)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // ── Center hub ──
+  const hubGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.28);
+  hubGrad.addColorStop(0,   '#3a1a00');
+  hubGrad.addColorStop(0.5, '#1e0e00');
+  hubGrad.addColorStop(1,   '#0a0500');
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.28, 0, 2 * Math.PI);
+  ctx.fillStyle = hubGrad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(245,140,0,0.45)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Hub TG text
+  ctx.fillStyle = 'rgba(245,166,35,0.55)';
+  const hubFont = Math.round(R * 0.16);
+  ctx.font = `${hubFont}px 'Bebas Neue', Impact, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('TG', cx, cy);
+
+  // ── Fixed ball indicator (stays at top — 12 o'clock — does NOT rotate) ──
+  // This shows where the ball is: always pointing to the top pocket
+  const ballR = R - 3;
+  // Arrow pointing inward at top
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = '#ffffff';
+  ctx.shadowBlur = 10;
+  // Small triangle pointing down into the wheel
+  ctx.beginPath();
+  ctx.moveTo(0, -(ballR));
+  ctx.lineTo(-5, -(ballR + 10));
+  ctx.lineTo(5,  -(ballR + 10));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function roulNumberToAngle(num) {
+  const idx = WHEEL_ORDER.indexOf(num);
+  if (idx < 0) return 0;
+  const n = WHEEL_ORDER.length;
+  const slice = (2 * Math.PI) / n;
+  // When the wheel offset angle is `a`, pocket i has its midpoint at: a + i*slice
+  // We want pocket idx's midpoint to be at the top = -PI/2
+  // So: a + idx*slice = -PI/2
+  // a = -PI/2 - idx*slice
+  return -Math.PI / 2 - idx * slice;
+}
+
+function spinRoulette(targetNum, roundIdx) {
+  const target = roulNumberToAngle(targetNum);
+  // Deterministic spin count based on round index
+  const spinCount = 6 + (roundIdx % 5);
+  // Start from a normalized angle
+  const normalizedCurrent = ((_roulAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  const normalizedTarget  = ((target % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+  // Always spin forward (add full rotations)
+  _roulTargetAngle = normalizedTarget - spinCount * 2 * Math.PI;
+  _roulAngle = normalizedCurrent;
+  _roulSpinning = true;
+
+  const startAngle = _roulAngle;
+  const startTime = performance.now();
+  const duration = 3500; // ms
+
+  function easeOut(t) {
+    // Cubic ease out — smooth deceleration
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function frame(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(1, elapsed / duration);
+    _roulAngle = startAngle + (_roulTargetAngle - startAngle) * easeOut(t);
+    drawRouletteWheel(_roulAngle);
+
+    if (t < 1) {
+      _roulAnimFrame = requestAnimationFrame(frame);
+    } else {
+      // Normalize angle to [-2PI, 0] range
+      _roulAngle = normalizedTarget;
+      _roulSpinning = false;
+      showRouletteResult(targetNum);
+    }
+  }
+  if (_roulAnimFrame) cancelAnimationFrame(_roulAnimFrame);
+  _roulAnimFrame = requestAnimationFrame(frame);
+}
+
+function showRouletteResult(num) {
+  const col = roulColor(num);
+  const el = document.getElementById('roul-num');
+  el.textContent = num;
+  el.className = 'clr-' + col;
+  const labels = { red: 'RED', black: 'BLACK', green: 'GREEN - ZERO' };
+  document.getElementById('roul-label').textContent = labels[col] || '';
+
+  // Highlight number grid
+  document.querySelectorAll('.rcell').forEach(c => c.classList.remove('lit'));
+  const target = document.querySelector(`.rcell[data-n="${num}"]`);
+  if (target) target.classList.add('lit');
+}
+
+function buildRoulGrid() {
+  const grid = document.getElementById('roul-grid');
+  grid.innerHTML = '';
+
+  // Zero (full row width)
+  const zero = document.createElement('div');
+  zero.className = 'rcell z';
+  zero.dataset.n = '0';
+  zero.textContent = '0';
+  zero.style.gridColumn = '1 / -1';
+  grid.appendChild(zero);
+
+  // Numbers 1-36 in 3 rows of 12
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 12; col++) {
+      const num = row + col * 3 + 1;
+      const c = document.createElement('div');
+      c.className = 'rcell ' + (ROUL_RED.has(num) ? 'r' : 'b');
+      c.dataset.n = num;
+      c.textContent = num;
+      grid.appendChild(c);
+    }
+  }
+}
+
+function roulRound() {
+  const ri = roundIndex(ROUL_INTERVAL);
+  const r = prng(ri * 7777 + 1);
+  return rInt(r, 0, 36);
+}
+
+function tickRoulette() {
+  const progress = roundProgress(ROUL_INTERVAL);
+  const secsLeft = secsUntilNext(ROUL_INTERVAL);
+  const fill = document.getElementById('roul-timer-fill');
+  const num  = document.getElementById('roul-timer-num');
+  if (fill) fill.style.width = (100 - progress * 100) + '%';
+  if (num)  num.textContent = secsLeft;
+
+  const ri = roundIndex(ROUL_INTERVAL);
+  const currentNum = roulRound();
+  if (currentNum !== _roulLastNum) {
+    _roulLastNum = currentNum;
+    spinRoulette(currentNum, ri);
+    // Add to history
+    _roulHistory.unshift({ num: currentNum, col: roulColor(currentNum) });
+    if (_roulHistory.length > 20) _roulHistory.pop();
+    renderRoulHistory();
+  }
+  // Keep drawing if not spinning (just redraw static state)
+  if (!_roulSpinning && _roulCanvas) {
+    drawRouletteWheel(_roulAngle);
+  }
+}
+
+function renderRoulHistory() {
+  const el = document.getElementById('roul-hist');
+  if (!el) return;
+  el.innerHTML = _roulHistory.map(h => {
+    const cls = h.col === 'red' ? 'r' : h.col === 'green' ? 'g' : '';
+    return `<span class="hp ${cls}">${h.num}</span>`;
+  }).join('');
+}
+
+function initRoulette() {
+  _roulCanvas = document.getElementById('roulette-canvas');
+  if (!_roulCanvas) return;
+
+  // Use device pixel ratio for crisp rendering
+  const dpr = window.devicePixelRatio || 1;
+  const displaySize = 300; // CSS pixels
+  _roulCanvas.width  = displaySize * dpr;
+  _roulCanvas.height = displaySize * dpr;
+  _roulCanvas.style.width  = displaySize + 'px';
+  _roulCanvas.style.height = displaySize + 'px';
+
+  _roulCtx = _roulCanvas.getContext('2d');
+  _roulCtx.scale(dpr, dpr);
+
+  buildRoulGrid();
+  _roulAngle = -Math.PI / 2; // start with 0 at top
+  drawRouletteWheel(_roulAngle);
+}
+
+// ================================================================
+//  5 DICE
+// ================================================================
+const DICE_INTERVAL = 20 * 1000;
+let _diceHistory = [];
+let _diceLastRound = -1;
+
+function diceRound() {
+  const ri = roundIndex(DICE_INTERVAL);
+  const r = prng(ri * 3333 + 5);
+  return [rInt(r, 1, 6), rInt(r, 1, 6), rInt(r, 1, 6), rInt(r, 1, 6), rInt(r, 1, 6)];
+}
+
+function evalDice(dice) {
+  const counts = {};
+  dice.forEach(d => counts[d] = (counts[d] || 0) + 1);
+  const vals = Object.values(counts).sort((a, b) => b - a);
+  const sum = dice.reduce((a, b) => a + b, 0);
+  const sorted = [...dice].sort((a, b) => a - b);
+  const isStraight = sorted.join('') === '12345' || sorted.join('') === '23456';
+
+  if (vals[0] === 5) return 'FIVE OF A KIND';
+  if (vals[0] === 4) return 'FOUR OF A KIND';
+  if (vals[0] === 3 && vals[1] === 2) return 'FULL HOUSE';
+  if (isStraight) return 'STRAIGHT';
+  if (vals[0] === 3) return 'THREE OF A KIND';
+  if (vals[0] === 2 && vals[1] === 2) return 'TWO PAIR';
+  if (vals[0] === 2) return 'ONE PAIR';
+  return 'NO COMBO -- SUM ' + sum;
+}
+
+function buildDiceRow() {
+  const row = document.getElementById('dice-row');
+  if (!row) return;
+  row.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const die = document.createElement('div');
+    die.className = 'die';
+    die.id = 'die-' + i;
+    die.dataset.v = '1';
+    for (let p = 0; p < 6; p++) {
+      const pip = document.createElement('div');
+      pip.className = 'pip';
+      die.appendChild(pip);
+    }
+    row.appendChild(die);
+  }
+}
+
+function setDie(el, v) {
+  el.dataset.v = v;
+  // pips are purely CSS positioned via data-v
+}
+
+function animateDice(values) {
+  for (let i = 0; i < 5; i++) {
+    const die = document.getElementById('die-' + i);
+    if (!die) continue;
+    die.classList.remove('rolling');
+    void die.offsetWidth;
+    die.classList.add('rolling');
+    setTimeout(() => {
+      die.classList.remove('rolling');
+      setDie(die, values[i]);
+    }, 550);
+  }
+}
+
+function tickDice() {
+  const progress = roundProgress(DICE_INTERVAL);
+  const secsLeft = secsUntilNext(DICE_INTERVAL);
+  const fill = document.getElementById('dice-timer-fill');
+  const lbl  = document.getElementById('dice-timer-num');
+  if (fill) fill.style.width = (100 - progress * 100) + '%';
+  if (lbl)  lbl.textContent = secsLeft;
+
+  const ri = roundIndex(DICE_INTERVAL);
+  if (ri !== _diceLastRound) {
+    _diceLastRound = ri;
+    const vals = diceRound();
+    const combo = evalDice(vals);
+    animateDice(vals);
+    setTimeout(() => {
+      const comboEl = document.getElementById('dice-combo');
+      const sumEl   = document.getElementById('dice-sum');
+      if (comboEl) comboEl.textContent = combo;
+      if (sumEl)   sumEl.textContent = 'SUM: ' + vals.reduce((a, b) => a + b, 0) + '  |  VALUES: ' + vals.join(' · ');
+    }, 580);
+    _diceHistory.unshift(combo);
+    if (_diceHistory.length > 20) _diceHistory.pop();
+    renderDiceHistory();
+  }
+}
+
+function renderDiceHistory() {
+  const el = document.getElementById('dice-hist');
+  if (!el) return;
+  const good = ['FIVE OF A KIND','FOUR OF A KIND','FULL HOUSE','STRAIGHT'];
+  const mid  = ['THREE OF A KIND','TWO PAIR'];
+  el.innerHTML = _diceHistory.map(h => {
+    const cls = good.includes(h) ? 'g' : mid.includes(h) ? 'o' : '';
+    return `<span class="hp ${cls}">${h}</span>`;
+  }).join('');
+}
+
+// ================================================================
+//  COIN FLIP
+// ================================================================
+const COIN_INTERVAL = 12 * 1000;
+let _coinHistory = [];
+let _coinLastRound = -1;
+let _coinStreak = 0;
+let _coinLastSide = null;
+
+function coinRound() {
+  const ri = roundIndex(COIN_INTERVAL);
+  const r = prng(ri * 2222 + 7);
+  return r() < 0.5 ? 'HEADS' : 'TAILS';
+}
+
+function tickCoin() {
+  const progress = roundProgress(COIN_INTERVAL);
+  const secsLeft = secsUntilNext(COIN_INTERVAL);
+  const fill = document.getElementById('coin-timer-fill');
+  const lbl  = document.getElementById('coin-timer-num');
+  if (fill) fill.style.width = (100 - progress * 100) + '%';
+  if (lbl)  lbl.textContent = secsLeft;
+
+  const ri = roundIndex(COIN_INTERVAL);
+  if (ri !== _coinLastRound) {
+    _coinLastRound = ri;
+    const side = coinRound();
+
+    // Update streak
+    if (side === _coinLastSide) {
+      _coinStreak++;
+    } else {
+      _coinStreak = 1;
+    }
+    _coinLastSide = side;
+
+    // Animate
+    const coin = document.getElementById('coin');
+    if (coin) {
+      coin.classList.remove('spinning');
+      void coin.offsetWidth;
+      coin.classList.add('spinning');
+    }
+    setTimeout(() => {
+      const resEl = document.getElementById('coin-result');
+      if (resEl) {
+        resEl.textContent = side;
+        resEl.className = side.toLowerCase();
+      }
+      const streakEl = document.getElementById('streak-num');
+      if (streakEl) streakEl.textContent = _coinStreak;
+    }, 1320);
+
+    _coinHistory.unshift(side);
+    if (_coinHistory.length > 30) _coinHistory.pop();
+    renderCoinHistory();
+  }
+}
+
+function renderCoinHistory() {
+  const el = document.getElementById('coin-hist');
+  if (!el) return;
+  el.innerHTML = _coinHistory.map(h => {
+    const cls = h === 'HEADS' ? 'o' : '';
+    return `<span class="hp ${cls}">${h === 'HEADS' ? 'H' : 'T'}</span>`;
+  }).join('');
+}
+
+// ================================================================
+//  KENO
+// ================================================================
+const KENO_INTERVAL = 45 * 1000;
+let _kenoLastRound = -1;
+let _kenoHistory = [];
+
+function kenoRound() {
+  const ri = roundIndex(KENO_INTERVAL);
+  const r = prng(ri * 4444 + 80);
+  const pool = Array.from({length: 80}, (_, i) => i + 1);
+  const drawn = [];
+  for (let i = 0; i < 20; i++) {
+    const idx = Math.floor(r() * pool.length);
+    drawn.push(pool.splice(idx, 1)[0]);
+  }
+  return drawn;
+}
+
+function buildKenoGrid() {
+  const grid = document.getElementById('keno-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (let i = 1; i <= 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'kc';
+    c.id = 'kc-' + i;
+    c.textContent = i;
+    grid.appendChild(c);
+  }
+}
+
+let _kenoRevealTimer = null;
+
+function revealKeno(drawn) {
+  // Clear previous
+  document.querySelectorAll('.kc').forEach(c => c.classList.remove('drawn'));
+  document.getElementById('keno-drawn-count').textContent = '0';
+  document.getElementById('keno-last').textContent = '--';
+
+  if (_kenoRevealTimer) clearInterval(_kenoRevealTimer);
+  let idx = 0;
+  _kenoRevealTimer = setInterval(() => {
+    if (idx >= drawn.length) { clearInterval(_kenoRevealTimer); return; }
+    const n = drawn[idx];
+    const cell = document.getElementById('kc-' + n);
+    if (cell) cell.classList.add('drawn');
+    document.getElementById('keno-drawn-count').textContent = idx + 1;
+    document.getElementById('keno-last').textContent = n;
+    idx++;
+  }, Math.floor(KENO_INTERVAL * 0.8 / 20)); // spread reveals over 80% of interval
+}
+
+function tickKeno() {
+  const progress = roundProgress(KENO_INTERVAL);
+  const secsLeft = secsUntilNext(KENO_INTERVAL);
+  const fill = document.getElementById('keno-timer-fill');
+  const lbl  = document.getElementById('keno-timer-num');
+  if (fill) fill.style.width = (100 - progress * 100) + '%';
+  if (lbl)  lbl.textContent = secsLeft;
+
+  const ri = roundIndex(KENO_INTERVAL);
+  if (ri !== _kenoLastRound) {
+    _kenoLastRound = ri;
+    const drawn = kenoRound();
+    revealKeno(drawn);
+    _kenoHistory.unshift(drawn.slice(0, 5).join(' '));
+    if (_kenoHistory.length > 10) _kenoHistory.pop();
+    renderKenoHistory();
+  }
+}
+
+function renderKenoHistory() {
+  const el = document.getElementById('keno-hist');
+  if (!el) return;
+  el.innerHTML = _kenoHistory.map(h =>
+    `<span class="hp o">${h}...</span>`
+  ).join('');
+}
+
+// ================================================================
+//  BLIND MAN'S BLUFF
+// ================================================================
+const BLUFF_INTERVAL = 18 * 1000;
+let _bluffLastRound = -1;
+let _bluffHistory = [];
+
+const RANKS = [1,2,3,4,5,6,7,8,9,10,11,12,13];
+const RANK_NAMES = {1:'A',11:'J',12:'Q',13:'K'};
+const SUITS = ['hearts','diamonds','clubs','spades'];
+const SUIT_HTML = {
+  hearts:'&#9829;', diamonds:'&#9830;', clubs:'&#9827;', spades:'&#9824;'
+};
+const RED_SUITS = new Set(['hearts','diamonds']);
+
+function rankName(r) { return RANK_NAMES[r] || String(r); }
+
+function bluffRound() {
+  const ri = roundIndex(BLUFF_INTERVAL);
+  const r = prng(ri * 5555 + 13);
+  // Draw 2 cards from 52
+  const deck = [];
+  RANKS.forEach(rank => SUITS.forEach(suit => deck.push({rank, suit})));
+  // shuffle 2 picks
+  const idx1 = Math.floor(r() * 52);
+  let idx2 = Math.floor(r() * 51);
+  if (idx2 >= idx1) idx2++;
+  return { player: deck[idx1], house: deck[idx2] };
+}
+
+function cardEl(card, size = '') {
+  const el = document.createElement('div');
+  el.className = `pcard ${RED_SUITS.has(card.suit) ? 'red-c' : 'blk-c'} ${size}`;
+  el.innerHTML = `<div class="rank">${rankName(card.rank)}</div><div class="suit">${SUIT_HTML[card.suit]}</div>`;
+  return el;
+}
+
+function bluffPhase(progress) {
+  // 0–0.2: "dealing", cards face down
+  // 0.2–0.6: reveal player
+  // 0.6–0.8: reveal house
+  // 0.8–1.0: show winner
+  if (progress < 0.2) return 'deal';
+  if (progress < 0.55) return 'playerRevealed';
+  if (progress < 0.8) return 'bothRevealed';
+  return 'result';
+}
+
+function tickBluff() {
+  const progress = roundProgress(BLUFF_INTERVAL);
+  const secsLeft = secsUntilNext(BLUFF_INTERVAL);
+  const fill = document.getElementById('bluff-timer-fill');
+  const lbl  = document.getElementById('bluff-timer-num');
+  if (fill) fill.style.width = (100 - progress * 100) + '%';
+  if (lbl)  lbl.textContent = secsLeft;
+
+  const ri = roundIndex(BLUFF_INTERVAL);
+  const { player, house } = bluffRound();
+  const phase = bluffPhase(progress);
+
+  const pEl = document.getElementById('bluff-player-card');
+  const hEl = document.getElementById('bluff-house-card');
+  const winEl = document.getElementById('bluff-winner');
+  const phaseEl = document.getElementById('bluff-phase');
+  if (!pEl || !hEl || !winEl || !phaseEl) return;
+
+  if (phase === 'deal') {
+    // Both face down
+    pEl.className = 'pcard back lg';
+    pEl.innerHTML = '';
+    hEl.className = 'pcard back lg';
+    hEl.innerHTML = '';
+    winEl.textContent = '--';
+    winEl.className = '';
+    phaseEl.textContent = 'DEALING...';
+  } else if (phase === 'playerRevealed') {
+    // Player card revealed
+    pEl.className = `pcard ${RED_SUITS.has(player.suit) ? 'red-c' : 'blk-c'} lg`;
+    pEl.innerHTML = `<div class="rank">${rankName(player.rank)}</div><div class="suit">${SUIT_HTML[player.suit]}</div>`;
+    hEl.className = 'pcard back lg';
+    hEl.innerHTML = '';
+    winEl.textContent = '?';
+    phaseEl.textContent = "PLAYER'S CARD REVEALED";
+  } else if (phase === 'bothRevealed') {
+    pEl.className = `pcard ${RED_SUITS.has(player.suit) ? 'red-c' : 'blk-c'} lg`;
+    pEl.innerHTML = `<div class="rank">${rankName(player.rank)}</div><div class="suit">${SUIT_HTML[player.suit]}</div>`;
+    hEl.className = `pcard ${RED_SUITS.has(house.suit) ? 'red-c' : 'blk-c'} lg`;
+    hEl.innerHTML = `<div class="rank">${rankName(house.rank)}</div><div class="suit">${SUIT_HTML[house.suit]}</div>`;
+    winEl.textContent = '...';
+    phaseEl.textContent = 'BOTH REVEALED - JUDGING';
+  } else {
+    // Show result
+    pEl.className = `pcard ${RED_SUITS.has(player.suit) ? 'red-c' : 'blk-c'} lg`;
+    pEl.innerHTML = `<div class="rank">${rankName(player.rank)}</div><div class="suit">${SUIT_HTML[player.suit]}</div>`;
+    hEl.className = `pcard ${RED_SUITS.has(house.suit) ? 'red-c' : 'blk-c'} lg`;
+    hEl.innerHTML = `<div class="rank">${rankName(house.rank)}</div><div class="suit">${SUIT_HTML[house.suit]}</div>`;
+
+    const pRank = player.rank === 1 ? 14 : player.rank;
+    const hRank = house.rank  === 1 ? 14 : house.rank;
+    if (pRank > hRank) {
+      winEl.textContent = 'PLAYER WINS';
+      winEl.className = 'p-win';
+      phaseEl.textContent = `${rankName(player.rank)} beats ${rankName(house.rank)}`;
+    } else if (hRank > pRank) {
+      winEl.textContent = 'HOUSE WINS';
+      winEl.className = 'h-win';
+      phaseEl.textContent = `${rankName(house.rank)} beats ${rankName(player.rank)}`;
+    } else {
+      winEl.textContent = 'PUSH - TIE';
+      winEl.className = 'tie';
+      phaseEl.textContent = `Both ${rankName(player.rank)} - draw`;
+    }
+  }
+
+  if (ri !== _bluffLastRound && phase === 'result') {
+    _bluffLastRound = ri;
+    const pR = player.rank === 1 ? 14 : player.rank;
+    const hR = house.rank  === 1 ? 14 : house.rank;
+    const res = pR > hR ? 'P' : hR > pR ? 'H' : 'T';
+    _bluffHistory.unshift({ p: rankName(player.rank)+SUIT_HTML[player.suit], h: rankName(house.rank)+SUIT_HTML[house.suit], res });
+    if (_bluffHistory.length > 20) _bluffHistory.pop();
+    renderBluffHistory();
+  }
+}
+
+function renderBluffHistory() {
+  const el = document.getElementById('bluff-hist');
+  if (!el) return;
+  el.innerHTML = _bluffHistory.map(h => {
+    const cls = h.res === 'P' ? 'g' : h.res === 'H' ? 'r' : 'o';
+    const label = h.res === 'P' ? 'P WINS' : h.res === 'H' ? 'H WINS' : 'TIE';
+    return `<span class="hp ${cls}">${label}</span>`;
+  }).join('');
+}
+
+// ================================================================
+//  RANDOM EMOJI
+// ================================================================
+const EMOJI_INTERVAL = 10 * 1000;
+let _emojiLastRound = -1;
+let _emojiHistory = [];
+
+const EMOJI_POOL = [
+  ['🎰','JACKPOT','games'],
+  ['🎲','DICE ROLL','games'],
+  ['🃏','WILD CARD','games'],
+  ['🎯','BULLSEYE','games'],
+  ['🏆','CHAMPION','sports'],
+  ['💎','DIAMOND','gems'],
+  ['⚡','LIGHTNING','weather'],
+  ['🔥','FIRE','elements'],
+  ['🌊','WAVE','elements'],
+  ['🌙','MOON','space'],
+  ['⭐','STAR','space'],
+  ['🚀','ROCKET','space'],
+  ['🦁','LION','animals'],
+  ['🐉','DRAGON','mythical'],
+  ['🦋','BUTTERFLY','animals'],
+  ['🌸','BLOSSOM','nature'],
+  ['🍀','FOUR LEAF','nature'],
+  ['🎸','GUITAR','music'],
+  ['🎺','TRUMPET','music'],
+  ['🎭','MASKS','arts'],
+  ['🌈','RAINBOW','weather'],
+  ['❄️','SNOWFLAKE','weather'],
+  ['🍕','PIZZA','food'],
+  ['🍩','DONUT','food'],
+  ['🦊','FOX','animals'],
+  ['🦄','UNICORN','mythical'],
+  ['🎪','BIG TOP','events'],
+  ['🌟','GLOWING STAR','space'],
+  ['🎆','FIREWORKS','events'],
+  ['💫','DIZZY STAR','space'],
+];
+
+function emojiRound() {
+  const ri = roundIndex(EMOJI_INTERVAL);
+  const r = prng(ri * 6666 + 42);
+  const idx = Math.floor(r() * EMOJI_POOL.length);
+  return EMOJI_POOL[idx];
+}
+
+function tickEmoji() {
+  const progress = roundProgress(EMOJI_INTERVAL);
+  const secsLeft = secsUntilNext(EMOJI_INTERVAL);
+  const fill = document.getElementById('emoji-timer-fill');
+  const lbl  = document.getElementById('emoji-timer-num');
+  if (fill) fill.style.width = (100 - progress * 100) + '%';
+  if (lbl)  lbl.textContent = secsLeft;
+
+  const ri = roundIndex(EMOJI_INTERVAL);
+  if (ri !== _emojiLastRound) {
+    _emojiLastRound = ri;
+    const [emoji, name, cat] = emojiRound();
+
+    const mainEl = document.getElementById('emoji-main');
+    const titleEl = document.getElementById('emoji-title');
+    const catEl = document.getElementById('emoji-cat');
+    if (mainEl) {
+      mainEl.classList.remove('pop');
+      void mainEl.offsetWidth;
+      mainEl.textContent = emoji;
+      mainEl.classList.add('pop');
+    }
+    if (titleEl) titleEl.textContent = name;
+    if (catEl)   catEl.textContent = cat.toUpperCase();
+
+    _emojiHistory.unshift({ emoji, name });
+    if (_emojiHistory.length > 12) _emojiHistory.pop();
+    renderEmojiHistory();
+  }
+}
+
+function renderEmojiHistory() {
+  const histRow = document.getElementById('emoji-hist-row');
+  const histStrip = document.getElementById('emoji-hist');
+  if (histRow) {
+    histRow.innerHTML = _emojiHistory.map((h, i) =>
+      `<span class="ehist ${i < 3 ? 'recent' : ''}" title="${h.name}">${h.emoji}</span>`
+    ).join('');
+  }
+  if (histStrip) {
+    histStrip.innerHTML = _emojiHistory.map(h =>
+      `<span class="hp o">${h.emoji} ${h.name}</span>`
+    ).join('');
+  }
+}
+
+// ================================================================
+//  PARTICLE SYSTEM — amber bokeh sparks like the TG logo bg
+// ================================================================
+function initParticles() {
+  const canvas = document.getElementById('particle-canvas');
+  if (!canvas) return;
+  const hero = canvas.parentElement;
+  if (!hero) return;
+
+  function resize() {
+    canvas.width  = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  const COUNT = 55;
+
+  for (let i = 0; i < COUNT; i++) {
+    particles.push(newParticle(canvas, true));
+  }
+
+  function newParticle(c, anywhere) {
+    const x = Math.random() * c.width;
+    const y = anywhere ? Math.random() * c.height : c.height + 10;
+    const size = 2 + Math.random() * 5;
+    const speed = 0.2 + Math.random() * 0.6;
+    const drift = (Math.random() - 0.5) * 0.4;
+    // Colors from image: amber #f5a020, orange #ff6010, gold #ffd030
+    const hue = 20 + Math.floor(Math.random() * 30);
+    const sat = 90 + Math.floor(Math.random() * 10);
+    const lum = 50 + Math.floor(Math.random() * 30);
+    return { x, y, size, speed, drift,
+             color: `hsl(${hue},${sat}%,${lum}%)`,
+             alpha: 0.15 + Math.random() * 0.6,
+             twinkle: Math.random() * Math.PI * 2,
+             twinkleSpeed: 0.02 + Math.random() * 0.04 };
+  }
+
+  let lastTime = 0;
+  function frame(ts) {
+    if (!document.getElementById('particle-canvas')) return; // stop if removed
+    const dt = Math.min(32, ts - lastTime);
+    lastTime = ts;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach((p, i) => {
+      p.y -= p.speed * (dt / 16);
+      p.x += p.drift;
+      p.twinkle += p.twinkleSpeed;
+      const a = p.alpha * (0.5 + 0.5 * Math.sin(p.twinkle));
+
+      ctx.save();
+      ctx.globalAlpha = a;
+      // Soft glow
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
+      grad.addColorStop(0,   p.color);
+      grad.addColorStop(0.4, p.color.replace('hsl', 'hsla').replace(')', ',0.4)'));
+      grad.addColorStop(1,   'transparent');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 2.5, 0, 2 * Math.PI);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+
+      if (p.y < -10) {
+        particles[i] = newParticle(canvas, false);
+      }
+    });
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+// ================================================================
+//  MASTER TICK — runs every 500ms, drives all games
+// ================================================================
+function masterTick() {
+  renderLotto();
+  tickRoulette();
+  tickDice();
+  tickCoin();
+  tickKeno();
+  tickBluff();
+  tickEmoji();
+}
+
+// ================================================================
+//  INIT
+// ================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  buildTicker();
+  buildRoomsGrid();
+  initRoulette();
+  buildDiceRow();
+  buildKenoGrid();
+  initParticles();
+
+  // Run tick immediately, then every 500ms
+  masterTick();
+  setInterval(masterTick, 500);
+
+  // Pre-warm history for all games by running a few fake prior rounds
+  // This ensures history strips are non-empty on page load
+  (function prewarm() {
+    const now = Date.now();
+    for (let ago = 10; ago >= 1; ago--) {
+      // Simulate prior roulette rounds
+      const roulPrior = Math.floor((now - ago * ROUL_INTERVAL) / ROUL_INTERVAL);
+      const rv = prng(roulPrior * 7777 + 1);
+      const rn = rInt(rv, 0, 36);
+      _roulHistory.push({ num: rn, col: roulColor(rn) });
+
+      // dice
+      const dicePrior = Math.floor((now - ago * DICE_INTERVAL) / DICE_INTERVAL);
+      const dv = prng(dicePrior * 3333 + 5);
+      const dd = [rInt(dv,1,6),rInt(dv,1,6),rInt(dv,1,6),rInt(dv,1,6),rInt(dv,1,6)];
+      _diceHistory.push(evalDice(dd));
+
+      // coin
+      const coinPrior = Math.floor((now - ago * COIN_INTERVAL) / COIN_INTERVAL);
+      const cv = prng(coinPrior * 2222 + 7);
+      _coinHistory.push(cv() < 0.5 ? 'HEADS' : 'TAILS');
+    }
+    renderRoulHistory();
+    renderDiceHistory();
+    renderCoinHistory();
+  })();
+});
+</script>
+</body>
+</html>
